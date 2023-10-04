@@ -1,7 +1,7 @@
 extends RigidBody2D
 
-var min_speed = 100.0
-var max_speed = 600.0
+var min_speed = 300.0
+var max_speed = 650.0
 var accelerate = false
 var time_highlight = 0.4
 var time_highlight_size = 0.3
@@ -31,6 +31,17 @@ func _on_Ball_body_entered(body):
 	if body.has_method("hit"):
 		body.hit(self)
 		accelerate = true
+	if tween:
+		tween.kill()
+	tween = create_tween().set_parallel(true)
+	$Images/Highlight.modulate.a = 1.0
+	tween.tween_property($Images/Highlight, "modulate:a", 0, time_highlight)
+	$Images/Highlight.scale = Vector2(2,2)
+	tween.tween_property($Images/Highlight, "scale", Vector2(1,1), time_highlight_size).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_IN)
+	wobble_direction = linear_velocity.orthogonal().normalized()
+	wobble_amplitude = wobble_max
+	
+	
 	
 func _integrate_forces(state):
 	wobble()
@@ -51,7 +62,14 @@ func die():
 	queue_free()
 
 func wobble():
-	pass
+	wobble_period += 1
+	if wobble_amplitude > 0 :
+		var pos = wobble_direction*wobble_amplitude*sin(wobble_period)
+		$Images.position = pos
+		wobble_amplitude -= decay_wobble
 		
 func distort():
-	pass
+	var direction = Vector2(1 + linear_velocity.length()*distort_effect,1 - linear_velocity.length()*distort_effect)
+	$Images.rotation = linear_velocity.angle()
+	$Images.scale = direction
+	

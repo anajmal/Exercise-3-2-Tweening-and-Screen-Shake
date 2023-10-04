@@ -33,15 +33,15 @@ If you run the project, you will see the project where we left off at the end of
 
 Open `res://Ball/Ball.gd`. Edit the `_on_Ball_body_entered` and add this to the end of that function:
 ```
-    if tween:
-        tween.kill()
-    tween = create_tween().set_parallel(true)
-    $Images/Highlight.modulate.a = 1.0
-    tween.tween_property($Images/Highlight, "modulate:a", 0, time_highlight).set_trans(Tween.TRANS_LINEAR)
-    $Images/Highlight.scale = Vector2(2.0,2.0)
-    tween.tween_property($Images/Highlight, "scale", Vector2(1.0,1.0),time_highlight_size).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_IN)
-    wobble_direction = linear_velocity.orthogonal().normalized()
-    wobble_amplitude = wobble_max
+	if tween:
+		tween.kill()
+	tween = create_tween().set_parallel(true)
+	$Images/Highlight.modulate.a = 1.0
+	tween.tween_property($Images/Highlight, "modulate:a", 0, time_highlight).set_trans(Tween.TRANS_LINEAR)
+	$Images/Highlight.scale = Vector2(2.0,2.0)
+	tween.tween_property($Images/Highlight, "scale", Vector2(1.0,1.0),time_highlight_size).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_IN)
+	wobble_direction = linear_velocity.orthogonal().normalized()
+	wobble_amplitude = wobble_max
 ```
 
 I have stubbed out `wobble()` and `distort()` functions (that will ultimately make the ball wobble as it hits something and distort it as it moves faster). The contents of those functions should be as follows:
@@ -49,9 +49,9 @@ I have stubbed out `wobble()` and `distort()` functions (that will ultimately ma
 func wobble():
   wobble_period += 1
   if wobble_amplitude > 0:
-    var pos = wobble_direction * wobble_amplitude * sin(wobble_period)
-    $Images.position = pos
-    wobble_amplitude -= decay_wobble
+	var pos = wobble_direction * wobble_amplitude * sin(wobble_period)
+	$Images.position = pos
+	wobble_amplitude -= decay_wobble
 ```
 ```
 func distort():
@@ -66,39 +66,39 @@ Open `res://UI/HUD.gd`, then edit the script as follows, filling in the breathe 
 
 ```
 func breathe():
-    indicator_scale = indicator_scale_target if indicator_scale == indicator_scale_start else indicator_scale_start
-    indicator_mod = indicator_mod_target if indicator_mod == indicator_mod_start else indicator_mod_start
-        
-    if tween: tween.kill()
-    tween = get_tree().create_tween().set_parallel(true)
-    for i in $Indicator_Container.get_children():
-        tween.tween_property(i.get_node("Highlight"), "scale", indicator_scale, 0.5)
-        tween.tween_property(i.get_node("Highlight"), "modulate:a", indicator_mod, 0.5)
-    tween.set_parallel(false)
-    tween.tween_callback(self.breathe)
+	indicator_scale = indicator_scale_target if indicator_scale == indicator_scale_start else indicator_scale_start
+	indicator_mod = indicator_mod_target if indicator_mod == indicator_mod_start else indicator_mod_start
+		
+	if tween: tween.kill()
+	tween = get_tree().create_tween().set_parallel(true)
+	for i in $Indicator_Container.get_children():
+		tween.tween_property(i.get_node("Highlight"), "scale", indicator_scale, 0.5)
+		tween.tween_property(i.get_node("Highlight"), "modulate:a", indicator_mod, 0.5)
+	tween.set_parallel(false)
+	tween.tween_callback(self.breathe)
 ```
 
 ## The Paddle
 
 Open `res://Paddle/Paddle.gd`, and then append the following to the end of `hit(_ball)`:
 ```
-    if tween:
-      tween.kill()
-    tween = create_tween().set_parallel(true)
-    $Images/Highlight.modulate.a = 1.0
-    tween.tween_property($Images/Highlight, "modulate:a", 0.0, time_highlight)
-    $Images/Highlight.scale = Vector2(1.5, 1.5)
-    tween.tween_property($Images/Highlight, "scale", Vector2(1.0,1.0), time_highlight_size).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_IN) 
+	if tween:
+	  tween.kill()
+	tween = create_tween().set_parallel(true)
+	$Images/Highlight.modulate.a = 1.0
+	tween.tween_property($Images/Highlight, "modulate:a", 0.0, time_highlight)
+	$Images/Highlight.scale = Vector2(1.5, 1.5)
+	tween.tween_property($Images/Highlight, "scale", Vector2(1.0,1.0), time_highlight_size).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_IN) 
 ```
 
 ## The Bricks
 
 Open `res://Brick/Brick.gd` and replace line 16 with the following:
 ```
-    position.x = new_position.x
-    position.y = -100
-    tween = create_tween()
-    tween.tween_property(self, "position", new_position, 0.5 + randf()*2).set_trans(Tween.TRANS_BOUNCE)
+	position.x = new_position.x
+	position.y = -100
+	tween = create_tween()
+	tween.tween_property(self, "position", new_position, 0.5 + randf()*2).set_trans(Tween.TRANS_BOUNCE)
 ```
 
 Replace line 36 in `res://Brick/Brick.gd` with the following:
@@ -108,14 +108,14 @@ Replace line 36 in `res://Brick/Brick.gd` with the following:
 
 Then, add the following at the end of the `die()` function:
 ```
-    if tween:
-      tween.kill()
-    tween = create_tween().set_parallel(true)
-    tween.tween_property(self, "position", Vector2(position.x, 1000), time_fall).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
-    tween.tween_property(self, "rotation", -PI + randf()*2*PI, time_rotate).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
-    tween.tween_property($ColorRect, "color:a", 0, time_a)
-    tween.tween_property($ColorRect, "color:s", 0, time_s)
-    tween.tween_property($ColorRect, "color:v", 0, time_v)
+	if tween:
+	  tween.kill()
+	tween = create_tween().set_parallel(true)
+	tween.tween_property(self, "position", Vector2(position.x, 1000), time_fall).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
+	tween.tween_property(self, "rotation", -PI + randf()*2*PI, time_rotate).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property($ColorRect, "color:a", 0, time_a)
+	tween.tween_property($ColorRect, "color:s", 0, time_s)
+	tween.tween_property($ColorRect, "color:v", 0, time_v)
 ```
 
 ## Screen Shake
@@ -144,8 +144,8 @@ func _ready():
 
 func _process(delta):
   if trauma:
-    trauma = max(trauma - decay * delta, 0)
-    shake()
+	trauma = max(trauma - decay * delta, 0)
+	shake()
   
 func shake():
   var amount = pow(min(trauma,1.0), trauma_power)
@@ -162,11 +162,11 @@ Open `res://Ball/Ball_Container.gd`. Replace `_physics_process` with the followi
 ```
 func _physics_process(_delta):
   if get_child_count() == 0:
-    Global.update_lives(-1)
-    var camera = get_node_or_null("/root/Game/Camera")
-    if camera != null:
-      camera.add_trauma(3.0)
-    make_ball()
+	Global.update_lives(-1)
+	var camera = get_node_or_null("/root/Game/Camera")
+	if camera != null:
+	  camera.add_trauma(3.0)
+	make_ball()
 ```
 
 ---
